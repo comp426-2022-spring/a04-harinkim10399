@@ -7,8 +7,6 @@ const db = require('./database')
 const md5 = require("md5")
 const morgan = require('morgan')
 const fs = require('fs')
-// Use morgan for logging
-app.use(morgan('combined'))
 
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2));
