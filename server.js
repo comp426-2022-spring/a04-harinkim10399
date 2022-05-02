@@ -8,7 +8,8 @@ app.use(express.json)
 const db = require('./database.js')
 const md5 = require("md5")
 const morgan = require('morgan')
-const fs = require('fs')
+const fs = require('fs');
+const { argv } = require("process");
 
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2));
@@ -53,7 +54,7 @@ const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
 
-if (allArguments['log'] == true) {
+if (argv.log != "false" && argv.log != false) {
     // Use morgan for logging to files
     // Create a write stream to append (flags: 'a') to a file
     const writeStream = fs.createWriteStream('access.log', { flags: 'a' })
@@ -74,13 +75,13 @@ app.use((req, res, next) => {
         referer: req.headers['referer'],
         useragent: req.headers['user-agent']
     }
-    const stmt = db.prepare(`INSERT INTO accesslogs (remoteaddr, remoteuser, time method, url, protocol, httpversion, secure, status, referer, useragent)
+    const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time method, url, protocol, httpversion, secure, status, referer, useragent)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
-    const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.secure, logdata.status, logdata.referer, logdata.useragents)
+    const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.secure, logdata.status, logdata.referer, logdata.useragent)
     next();
 })
 
-if (allArguments['debug'] == true) {
+if (argv.debug == "true" || argv.debug == true) {
     app.get("/app/log/access", (req, res) => {
         try {
             const stmt = db.prepare('SELECT * FROM accesslogs').all()
