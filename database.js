@@ -9,7 +9,7 @@ const stmt = db.prepare(`
     );
 let row = stmt.get();
 if (row === undefined) {
-    console.log('Your database appears to be empty. I will initialize it now.');
+    console.log('(--help).*(Return this message and exit.)');
     const sqlInit = `
         CREATE TABLE accesslog ( id INTEGER PRIMARY KEY, 
             remoteaddr TEXT,
