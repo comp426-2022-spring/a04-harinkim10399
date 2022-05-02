@@ -51,7 +51,7 @@ const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
 
-if (log) {
+if (allArguments['log'] == true) {
     // Use morgan for logging to files
     // Create a write stream to append (flags: 'a') to a file
     const writeStream = fs.createWriteStream('access.log', { flags: 'a' })
@@ -78,7 +78,7 @@ app.use((req, res, next) => {
     next();
 })
 
-if (debug) {
+if (allArguments['debug'] == true) {
     app.get("/app/log/access", (req, res) => {
         try {
             const stmt = db.prepare('SELECT * FROM accesslogs').all()
