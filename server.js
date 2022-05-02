@@ -14,10 +14,6 @@ const md5 = require("md5")
 //const { url } = require('inspector')
 //const { argv } = require("process");
 
-
-// See what is stored in the object produced by minimist
-//console.log(args)
-// Store help text 
 const help = (`
 server.js [options]
   --port		    Set the port number for the server to listen on. Must be an integer
@@ -97,12 +93,6 @@ app.get('/app/', (req, res) => {
     res.status(200).end("OK");
     res.type("text/plain");
 });
-
-/*app.get('/app/', (req, res) => {
-    const statusCode = 200
-    const statusMessage = 'OK'
-    res.status(statusCode).end(statusCode + ' ' + statusMessage)
-});*/
 
 app.get('/app/flip', (req, res) => {
     res.status(200).json({
