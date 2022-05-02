@@ -3,6 +3,8 @@ const http = require("http");
 // Require Express.js
 const express = require('express');
 const app = express();
+app.use(express.urlencoded({extended: true}))
+app.use(express.json)
 const db = require('./database')
 const md5 = require("md5")
 const morgan = require('morgan')
