@@ -5,13 +5,13 @@ const Database = require('better-sqlite3');
 const db = new Database('log.db');
 
 const stmt = db.prepare(`
-    SELECT name FROM sqlite_master WHERE type='table' and 'access';`
+    SELECT name FROM sqlite_master WHERE type='table' and name='accesslogs';`
     );
 let row = stmt.get();
 if (row === undefined) {
     console.log('Log database appears to be empty. I will initialize it now.')
     const sqlInit = `
-        CREATE TABLE access ( id INTEGER PRIMARY KEY, 
+        CREATE TABLE accesslogs ( id INTEGER PRIMARY KEY, 
             remote-addr VARCHAR, 
             remote-user VARCHAR, 
             datetime VARCHAR, 
