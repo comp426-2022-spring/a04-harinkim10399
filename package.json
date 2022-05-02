@@ -19,6 +19,7 @@
   "homepage": "https://github.com/comp426-2022-spring/a04-harinkim10399#readme",
   "dependencies": {
     "better-sqlite3": "^7.5.1",
+    "curl": "^0.1.4",
     "errorhandler": "^1.5.1",
     "express": "^4.18.1",
     "fs": "^0.0.1-security",

@@ -1,4 +1,18 @@
+var express = require('express')
+var app = express()
+const fs = require('fs')
+const morgan = require('morgan')
+const logdb = require('./database.js')
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 const args = require('minimist')(process.argv.slice(2))
+const port = args.port || args.p || process.env.PORT || 5000
+
+const server = app.listen(port, () => {
+    console.log("Server running on port %PORT%".replace("%PORT%", port))
+});
+
 const help = (`
 server.js [options]
 --port, -p	Set the port number for the server to listen on. Must be an integer
@@ -15,17 +29,11 @@ if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
-var express = require('express')
-var app = express()
-const fs = require('fs')
-const morgan = require('morgan')
-const logdb = require('./database.js')
-app.use(express.json());
-const port = args.port || args.p || process.env.PORT || 5555
+
 if (args.log == 'false') {
     console.log("NOTICE: not creating file access.log")
 } else {
-    const accessLog = fs.createWriteStream(logdir + 'access.log', { flags: 'a' })
+    const accessLog = fs.createWriteStream('access.log', { flags: 'a' })
     app.use(morgan('combined', { stream: accessLog }))
 }
 
@@ -41,11 +49,22 @@ app.use((req, res, next) => {
         status: res.statusCode,
         referer: req.headers['referer'],
         useragent: req.headers['user-agent']
-    };
+    }
+    console.log(logdata)
     const stmt = logdb.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referrer, logdata.useragent)
     next();
 })
+
+if (args.debug || args.d) {
+    app.get('/app/log/access/', (req, res, next) => {
+        const stmt = logdb.prepare("SELECT * FROM accesslog").all();
+        res.status(200).json(stmt);
+    })
+    app.get('/app/error/', (req, res, next) => {
+        throw new Error('Error test works.')
+    })
+}
 
 function coinFlip() {
     let result = Math.random();
@@ -111,15 +130,7 @@ app.get('/app/flip/call/tails', (req, res) => {
     res.status(200).json(flipACoin('tails'))
 })
 
-if (args.debug || args.d) {
-    app.get('/app/log/access/', (req, res) => {
-        const stmt = logdb.prepare("SELECT * FROM accesslog").all();
-        res.status(200).json(stmt);
-    })
-    app.get('/app/error/', (req, res) => {
-        throw new Error('Error test works.')
-    })
-}
+
 
 app.use(function (req, res) {
     const statusCode = 404
@@ -127,6 +138,4 @@ app.use(function (req, res) {
     res.status(statusCode).end(statusCode + ' ' + statusMessage)
 });
 
-const server = app.listen(port, () => {
-    console.log("Server running on port %PORT%".replace("%PORT%", port))
-});
+
