@@ -1,15 +1,17 @@
+const http = require('http')
+
 // Require Express.js
 const express = require('express');
-const { get } = require("http");
+//const { get } = require("http");
 const app = express();
 //app.use(express.urlencoded({extended: true}))
 //app.use(express.json)
 const db = require('./database.js')
 //const md5 = require("md5")
 const morgan = require('morgan')
-const errorhandler = require('errorhandler')
+//const errorhandler = require('errorhandler')
 const fs = require('fs');
-const { url } = require('inspector')
+//const { url } = require('inspector')
 //const { argv } = require("process");
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2));
@@ -17,6 +19,9 @@ args["port"]
 args["help"]
 args["debug"]
 args["log"]
+const debug = args.debug || 'false'
+const log = args.log || 'true'
+const port = args.port || process.env.PORT || 5000;
 // See what is stored in the object produced by minimist
 //console.log(args)
 // Store help text 
@@ -41,17 +46,6 @@ if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
-
-//args['port'];
-const port = args.port || process.env.PORT || 5555;
-
-//args['debug']
-const debug = args.debug || 'false'
-
-//args['log']
-const log = args.log || 'true'
-
-//args['help']
 
 // Start an app server
 const server = app.listen(port, () => {
