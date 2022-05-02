@@ -1,27 +1,20 @@
 const http = require('http')
 
-// Require Express.js
 const express = require('express');
 //const { get } = require("http");
 const app = express();
 //app.use(express.urlencoded({extended: true}))
 //app.use(express.json)
 const db = require('./database.js')
-//const md5 = require("md5")
 const morgan = require('morgan')
+const args = require('minimist')(process.argv.slice(2));
 //const errorhandler = require('errorhandler')
 const fs = require('fs');
+const md5 = require("md5")
 //const { url } = require('inspector')
 //const { argv } = require("process");
-// Require minimist module
-const args = require('minimist')(process.argv.slice(2));
-args["port"]
-args["help"]
-args["debug"]
-args["log"]
-const debug = args.debug || 'false'
-const log = args.log || 'true'
-const port = args.port || process.env.PORT || 5000;
+
+
 // See what is stored in the object produced by minimist
 //console.log(args)
 // Store help text 
@@ -47,17 +40,23 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+args["port"]
+args["help"]
+args["debug"]
+args["log"]
+const port = args.port || process.env.PORT || 5555;
+const debug = args.debug || 'false'
+const log = args.log || 'true'
+
+
 // Start an app server
 const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
 
-if (argv.log != "false" && argv.log != false) {
-    // Use morgan for logging to files
-    // Create a write stream to append (flags: 'a') to a file
-    const writeStream = fs.createWriteStream('access.log', { flags: 'a' })
-    // Set up the access logging middleware
-    app.use(morgan('combined', { stream: writeStream }))
+if (log == 'true') {
+    const writeStream = fs.createWriteStream('access.log', { flags: 'a' });
+    app.use(morgan('combined', { stream: writeStream }));
 }
 
 app.use((req, res, next) => {
@@ -79,8 +78,8 @@ app.use((req, res, next) => {
     next();
 })
 
-if (argv.debug == "true" || argv.debug == true) {
-    app.get("/app/log/access", (req, res) => {
+if (debug) {
+    app.get('/app/log/access', (req, res) => {
         try {
             const stmt = db.prepare('SELECT * FROM accesslog').all()
             res.status(200).json(stmt)
@@ -90,7 +89,7 @@ if (argv.debug == "true" || argv.debug == true) {
     });
     app.get('/app/error', (req, res) => {
         res.status(500);
-        throw new Erro('Error test successful.')
+        throw new Error('Error test successful.')
     })
 }
 
