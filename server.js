@@ -51,7 +51,7 @@ const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
 
-if (log == 'true') {
+if (log) {
     // Use morgan for logging to files
     // Create a write stream to append (flags: 'a') to a file
     const writeStream = fs.createWriteStream('access.log', { flags: 'a' })
@@ -72,10 +72,25 @@ app.use((req, res, next) => {
         referer: req.headers['referer'],
         useragent: req.headers['user-agent']
     }
+    const stmt = db.prepare(`INSERT INTO accesslogs (remoteaddr, remoteuser, time method, url, protocol, httpversion, secure, status, referer, useragent)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
+    const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.secure, logdata.status, logdata.referer, logdata.useragents)
     next();
 })
 
-
+if (debug) {
+    app.get("/app/log/access", (req, res) => {
+        try {
+            const stmt = db.prepare('SELECT * FROM accesslogs').all()
+            res.status(HTTP_STATUS_OK).json(stmt)
+        } catch {
+            console.error(e)
+        }
+    });
+    app.get('/app/error', (req, res) => {
+        throw new Erro('Error test successful.')
+    })
+}
 
 app.get('/app/', (req, res) => {
     res.status(200).end("OK");
