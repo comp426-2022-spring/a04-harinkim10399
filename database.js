@@ -9,21 +9,22 @@ const stmt = db.prepare(`
     );
 let row = stmt.get();
 if (row === undefined) {
-    console.log('(--help).*(Return this message and exit.)')
+    console.log('(--help).*(Return this message and exit.)');
     const sqlInit = `
         CREATE TABLE accesslogs ( id INTEGER PRIMARY KEY, 
-            remote-addr VARCHAR, 
-            remote-user VARCHAR, 
-            datetime VARCHAR, 
-            method VARCHAR, 
-            url VARCHAR, 
-            protocol TEXT
-            http-version NUMERIC, 
-            status INTEGER, 
+            remoteaddr TEXT,
+            remoteuser TEXT,
+            time INTEGER,
+            method TEXT,
+            url TEXT,
+            protocol TEXT,
+            httpversion TEXT,
+            status INTEGER,
             referer: TEXT,
-            useragent: TEXT)`;
+            useragent: TEXT);
+    `;
     db.exec(sqlInit);
-    console.log('Your database has been initialized.')
+    console.log('Your database has been initialized.');
 } else {
     console.log('Database exists.')
 }

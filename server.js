@@ -3,27 +3,18 @@ const http = require("http");
 // Require Express.js
 const express = require('express');
 const app = express();
-app.use(express.urlencoded({extended: true}))
-app.use(express.json)
+//app.use(express.urlencoded({extended: true}))
+//app.use(express.json)
 const db = require('./database.js')
 const md5 = require("md5")
 const morgan = require('morgan')
 const fs = require('fs');
-const { argv } = require("process");
-
+//const { argv } = require("process");
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2));
-args['port'];
-const port = args.port || process.env.PORT || 5555;
-
-args['debug']
-const debug = args.debug || 'false'
-
-args['log']
-const log = args.log || 'true'
 
 // See what is stored in the object produced by minimist
-console.log(args)
+//console.log(args)
 // Store help text 
 const help = (`
 server.js [options]
@@ -46,6 +37,15 @@ if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
+
+args['port'];
+const port = args.port || process.env.PORT || 5555;
+
+args['debug']
+const debug = args.debug || 'false'
+
+args['log']
+const log = args.log || 'true'
 
 args['help']
 
@@ -75,7 +75,7 @@ app.use((req, res, next) => {
         referer: req.headers['referer'],
         useragent: req.headers['user-agent']
     }
-    const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time method, url, protocol, httpversion, secure, status, referer, useragent)
+    const stmt = db.prepare(`INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, secure, status, referer, useragent)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
     const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.secure, logdata.status, logdata.referer, logdata.useragent)
     next();
@@ -101,11 +101,11 @@ app.get('/app/', (req, res) => {
     res.type("text/plain");
 });
 
-app.get('/app/', (req, res) => {
+/*app.get('/app/', (req, res) => {
     const statusCode = 200
     const statusMessage = 'OK'
     res.status(statusCode).end(statusCode + ' ' + statusMessage)
-});
+});*/
 
 app.get('/app/flip', (req, res) => {
     res.status(200).json({
