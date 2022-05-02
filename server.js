@@ -3,11 +3,14 @@ var app = express()
 const fs = require('fs')
 const morgan = require('morgan')
 const logdb = require('./database.js')
+const http = require('http')
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const args = require('minimist')(process.argv.slice(2))
 const port = args.port || args.p || process.env.PORT || 5000
+
+args['port', 'help', 'debug', 'log']
 
 const server = app.listen(port, () => {
     console.log("Server running on port %PORT%".replace("%PORT%", port))
@@ -25,11 +28,12 @@ server.js [options]
             Logs are always written to database.
 --help, -h	Return this message and exit.
 `)
+
 if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
-
+const log = args.log || true
 if (args.log == 'false') {
     console.log("NOTICE: not creating file access.log")
 } else {
@@ -56,6 +60,7 @@ app.use((req, res, next) => {
     next();
 })
 
+const debug = args.debug || false
 if (args.debug || args.d) {
     app.get('/app/log/access/', (req, res, next) => {
         const stmt = logdb.prepare("SELECT * FROM accesslog").all();
