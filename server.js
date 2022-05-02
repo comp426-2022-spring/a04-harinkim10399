@@ -50,10 +50,13 @@ const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 });
 
-if (log == 'true') {
+if (args['log'] == true) {
     const writeStream = fs.createWriteStream('access.log', { flags: 'a' });
     app.use(morgan('combined', { stream: writeStream }));
 }
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use((req, res, next) => {
     let logdata = {
@@ -74,7 +77,7 @@ app.use((req, res, next) => {
     next();
 })
 
-if (debug) {
+if (args['debug'] == true) {
     app.get('/app/log/access', (req, res) => {
         try {
             const stmt = db.prepare('SELECT * FROM accesslog').all()
