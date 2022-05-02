@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 app.use(express.urlencoded({extended: true}))
 app.use(express.json)
-const db = require('./database')
+const db = require('./database.js')
 const md5 = require("md5")
 const morgan = require('morgan')
 const fs = require('fs')
@@ -13,7 +13,7 @@ const fs = require('fs')
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2));
 args['port'];
-const port = args.port || process.env.PORT || 5000;
+const port = args.port || process.env.PORT || 5555;
 
 args['debug']
 const debug = args.debug || 'false'
