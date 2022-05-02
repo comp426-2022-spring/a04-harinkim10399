@@ -19,8 +19,6 @@ const debug = args.debug || 'false'
 args['log']
 const log = args.log || 'true'
 
-args['help']
-
 // See what is stored in the object produced by minimist
 console.log(args)
 // Store help text 
@@ -45,6 +43,8 @@ if (args.help || args.h) {
     console.log(help)
     process.exit(0)
 }
+
+args['help']
 
 // Start an app server
 const server = app.listen(port, () => {
@@ -82,12 +82,13 @@ if (debug) {
     app.get("/app/log/access", (req, res) => {
         try {
             const stmt = db.prepare('SELECT * FROM accesslogs').all()
-            res.status(HTTP_STATUS_OK).json(stmt)
-        } catch {
+            res.status(200).json(stmt)
+        } catch(er) {
             console.error(e)
         }
     });
     app.get('/app/error', (req, res) => {
+        res.status(500);
         throw new Erro('Error test successful.')
     })
 }
