@@ -1,4 +1,3 @@
-// Place your server entry point code here
 const args = require('minimist')(process.argv.slice(2))
 const help = (`
 server.js [options]
@@ -20,17 +19,12 @@ var express = require('express')
 var app = express()
 const fs = require('fs')
 const morgan = require('morgan')
-const logdb = require('./src/services/database.js')
+const logdb = require('./database.js')
 app.use(express.json());
-const port = args.port || args.p || process.env.PORT || 5000
+const port = args.port || args.p || process.env.PORT || 5555
 if (args.log == 'false') {
     console.log("NOTICE: not creating file access.log")
 } else {
-    const logdir = './log/';
-
-    if (!fs.existsSync(logdir)) {
-        fs.mkdirSync(logdir);
-    }
     const accessLog = fs.createWriteStream(logdir + 'access.log', { flags: 'a' })
     app.use(morgan('combined', { stream: accessLog }))
 }
@@ -93,11 +87,9 @@ function flipACoin(call) {
     return result;
 }
 
-app.use(express.static('./public'))
-
-app.get("/app/", (req, res, next) => {
-    res.json({ "message": "Your API works! (200)" });
-    res.status(200);
+app.get("/app/", (req, res) => {
+    res.status(200).end("OK");
+    res.type("text/plain");
 });
 
 app.get('/app/flip/', (req, res) => {
@@ -105,29 +97,26 @@ app.get('/app/flip/', (req, res) => {
     res.status(200).json({ "flip": flip })
 });
 
-app.post('/app/flip/coins/', (req, res, next) => {
-    const flips = coinFlips(req.body.number)
-    const count = countFlips(flips)
-    res.status(200).json({ "raw": flips, "summary": count })
-})
-
-app.get('/app/flips/:number', (req, res, next) => {
+app.get('/app/flips/:number', (req, res) => {
     const flips = coinFlips(req.params.number)
     const count = countFlips(flips)
     res.status(200).json({ "raw": flips, "summary": count })
 });
 
-app.post('/app/flip/call', (req, res, next) => {
-    const game = flipACoin(req.body.guess)
-    res.status(200).json(game)
+app.get('/app/flip/call/heads', (req, res) => {
+    res.status(200).json(flipACoing('heads'))
 })
 
-if (args.debus || args.d) {
-    app.get('/app/log/access/', (req, res, next) => {
+app.get('/app/flip/call/tails', (req, res) => {
+    res.status(200).json(flipACoin('tails'))
+})
+
+if (args.debug || args.d) {
+    app.get('/app/log/access/', (req, res) => {
         const stmt = logdb.prepare("SELECT * FROM accesslog").all();
         res.status(200).json(stmt);
     })
-    app.get('/app/error/', (req, res, next) => {
+    app.get('/app/error/', (req, res) => {
         throw new Error('Error test works.')
     })
 }
@@ -140,10 +129,4 @@ app.use(function (req, res) {
 
 const server = app.listen(port, () => {
     console.log("Server running on port %PORT%".replace("%PORT%", port))
-});
-
-process.on('SIGINT', () => {
-    server.close(() => {
-        console.log('\nApp stopped.');
-    });
 });
