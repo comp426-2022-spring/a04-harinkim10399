@@ -106,9 +106,9 @@ function flipACoin(call) {
     return result;
 }
 
-app.get("/app/", (req, res) => {
-    res.status(200).end("OK");
-    res.type("text/plain");
+app.get("/app/", (req, res, next) => {
+    res.json({ "message": "Your API workd! (200)" })
+    res.status(200);
 });
 
 app.get('/app/flip/', (req, res) => {
